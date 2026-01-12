@@ -3,6 +3,9 @@ package com.example.family;
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 
 /**
+ * <pre>
+ * --- SERVİS TANIMLARI ---
+ * </pre>
  */
 @javax.annotation.Generated(
     value = "by gRPC proto compiler (version 1.58.0)",
@@ -12,32 +15,32 @@ public final class FamilyServiceGrpc {
 
   private FamilyServiceGrpc() {}
 
-  public static final java.lang.String SERVICE_NAME = "family.FamilyService";
+  public static final java.lang.String SERVICE_NAME = "com.example.family.FamilyService";
 
   // Static method descriptors that strictly reflect the proto.
   private static volatile io.grpc.MethodDescriptor<com.example.family.NodeInfo,
-      com.example.family.FamilyView> getJoinMethod;
+      com.example.family.JoinResponse> getJoinMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "Join",
       requestType = com.example.family.NodeInfo.class,
-      responseType = com.example.family.FamilyView.class,
+      responseType = com.example.family.JoinResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
   public static io.grpc.MethodDescriptor<com.example.family.NodeInfo,
-      com.example.family.FamilyView> getJoinMethod() {
-    io.grpc.MethodDescriptor<com.example.family.NodeInfo, com.example.family.FamilyView> getJoinMethod;
+      com.example.family.JoinResponse> getJoinMethod() {
+    io.grpc.MethodDescriptor<com.example.family.NodeInfo, com.example.family.JoinResponse> getJoinMethod;
     if ((getJoinMethod = FamilyServiceGrpc.getJoinMethod) == null) {
       synchronized (FamilyServiceGrpc.class) {
         if ((getJoinMethod = FamilyServiceGrpc.getJoinMethod) == null) {
           FamilyServiceGrpc.getJoinMethod = getJoinMethod =
-              io.grpc.MethodDescriptor.<com.example.family.NodeInfo, com.example.family.FamilyView>newBuilder()
+              io.grpc.MethodDescriptor.<com.example.family.NodeInfo, com.example.family.JoinResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "Join"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   com.example.family.NodeInfo.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.example.family.FamilyView.getDefaultInstance()))
+                  com.example.family.JoinResponse.getDefaultInstance()))
               .setSchemaDescriptor(new FamilyServiceMethodDescriptorSupplier("Join"))
               .build();
         }
@@ -46,66 +49,66 @@ public final class FamilyServiceGrpc {
     return getJoinMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<com.example.family.Empty,
-      com.example.family.FamilyView> getGetFamilyMethod;
+  private static volatile io.grpc.MethodDescriptor<com.example.family.StoreRequest,
+      com.example.family.StoreResponse> getStoreMessageMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetFamily",
-      requestType = com.example.family.Empty.class,
-      responseType = com.example.family.FamilyView.class,
+      fullMethodName = SERVICE_NAME + '/' + "StoreMessage",
+      requestType = com.example.family.StoreRequest.class,
+      responseType = com.example.family.StoreResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<com.example.family.Empty,
-      com.example.family.FamilyView> getGetFamilyMethod() {
-    io.grpc.MethodDescriptor<com.example.family.Empty, com.example.family.FamilyView> getGetFamilyMethod;
-    if ((getGetFamilyMethod = FamilyServiceGrpc.getGetFamilyMethod) == null) {
+  public static io.grpc.MethodDescriptor<com.example.family.StoreRequest,
+      com.example.family.StoreResponse> getStoreMessageMethod() {
+    io.grpc.MethodDescriptor<com.example.family.StoreRequest, com.example.family.StoreResponse> getStoreMessageMethod;
+    if ((getStoreMessageMethod = FamilyServiceGrpc.getStoreMessageMethod) == null) {
       synchronized (FamilyServiceGrpc.class) {
-        if ((getGetFamilyMethod = FamilyServiceGrpc.getGetFamilyMethod) == null) {
-          FamilyServiceGrpc.getGetFamilyMethod = getGetFamilyMethod =
-              io.grpc.MethodDescriptor.<com.example.family.Empty, com.example.family.FamilyView>newBuilder()
+        if ((getStoreMessageMethod = FamilyServiceGrpc.getStoreMessageMethod) == null) {
+          FamilyServiceGrpc.getStoreMessageMethod = getStoreMessageMethod =
+              io.grpc.MethodDescriptor.<com.example.family.StoreRequest, com.example.family.StoreResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetFamily"))
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "StoreMessage"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.example.family.Empty.getDefaultInstance()))
+                  com.example.family.StoreRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.example.family.FamilyView.getDefaultInstance()))
-              .setSchemaDescriptor(new FamilyServiceMethodDescriptorSupplier("GetFamily"))
+                  com.example.family.StoreResponse.getDefaultInstance()))
+              .setSchemaDescriptor(new FamilyServiceMethodDescriptorSupplier("StoreMessage"))
               .build();
         }
       }
     }
-    return getGetFamilyMethod;
+    return getStoreMessageMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<com.example.family.ChatMessage,
-      com.example.family.Empty> getReceiveChatMethod;
+  private static volatile io.grpc.MethodDescriptor<com.example.family.GetRequest,
+      com.example.family.GetResponse> getGetMessageMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "ReceiveChat",
-      requestType = com.example.family.ChatMessage.class,
-      responseType = com.example.family.Empty.class,
+      fullMethodName = SERVICE_NAME + '/' + "GetMessage",
+      requestType = com.example.family.GetRequest.class,
+      responseType = com.example.family.GetResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<com.example.family.ChatMessage,
-      com.example.family.Empty> getReceiveChatMethod() {
-    io.grpc.MethodDescriptor<com.example.family.ChatMessage, com.example.family.Empty> getReceiveChatMethod;
-    if ((getReceiveChatMethod = FamilyServiceGrpc.getReceiveChatMethod) == null) {
+  public static io.grpc.MethodDescriptor<com.example.family.GetRequest,
+      com.example.family.GetResponse> getGetMessageMethod() {
+    io.grpc.MethodDescriptor<com.example.family.GetRequest, com.example.family.GetResponse> getGetMessageMethod;
+    if ((getGetMessageMethod = FamilyServiceGrpc.getGetMessageMethod) == null) {
       synchronized (FamilyServiceGrpc.class) {
-        if ((getReceiveChatMethod = FamilyServiceGrpc.getReceiveChatMethod) == null) {
-          FamilyServiceGrpc.getReceiveChatMethod = getReceiveChatMethod =
-              io.grpc.MethodDescriptor.<com.example.family.ChatMessage, com.example.family.Empty>newBuilder()
+        if ((getGetMessageMethod = FamilyServiceGrpc.getGetMessageMethod) == null) {
+          FamilyServiceGrpc.getGetMessageMethod = getGetMessageMethod =
+              io.grpc.MethodDescriptor.<com.example.family.GetRequest, com.example.family.GetResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ReceiveChat"))
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetMessage"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.example.family.ChatMessage.getDefaultInstance()))
+                  com.example.family.GetRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.example.family.Empty.getDefaultInstance()))
-              .setSchemaDescriptor(new FamilyServiceMethodDescriptorSupplier("ReceiveChat"))
+                  com.example.family.GetResponse.getDefaultInstance()))
+              .setSchemaDescriptor(new FamilyServiceMethodDescriptorSupplier("GetMessage"))
               .build();
         }
       }
     }
-    return getReceiveChatMethod;
+    return getGetMessageMethod;
   }
 
   /**
@@ -153,33 +156,48 @@ public final class FamilyServiceGrpc {
   }
 
   /**
+   * <pre>
+   * --- SERVİS TANIMLARI ---
+   * </pre>
    */
   public interface AsyncService {
 
     /**
+     * <pre>
+     * 1. Yeni üye sisteme katılırken (Değişmedi)
+     * </pre>
      */
     default void join(com.example.family.NodeInfo request,
-        io.grpc.stub.StreamObserver<com.example.family.FamilyView> responseObserver) {
+        io.grpc.stub.StreamObserver<com.example.family.JoinResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getJoinMethod(), responseObserver);
     }
 
     /**
+     * <pre>
+     * 2. YENİ: Lider, üyeye "Bunu diske kaydet" der
+     * </pre>
      */
-    default void getFamily(com.example.family.Empty request,
-        io.grpc.stub.StreamObserver<com.example.family.FamilyView> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetFamilyMethod(), responseObserver);
+    default void storeMessage(com.example.family.StoreRequest request,
+        io.grpc.stub.StreamObserver<com.example.family.StoreResponse> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getStoreMessageMethod(), responseObserver);
     }
 
     /**
+     * <pre>
+     * 3. YENİ: Lider, üyeden "Şu ID'li mesaj sende mi?" diye sorar
+     * </pre>
      */
-    default void receiveChat(com.example.family.ChatMessage request,
-        io.grpc.stub.StreamObserver<com.example.family.Empty> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getReceiveChatMethod(), responseObserver);
+    default void getMessage(com.example.family.GetRequest request,
+        io.grpc.stub.StreamObserver<com.example.family.GetResponse> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetMessageMethod(), responseObserver);
     }
   }
 
   /**
    * Base class for the server implementation of the service FamilyService.
+   * <pre>
+   * --- SERVİS TANIMLARI ---
+   * </pre>
    */
   public static abstract class FamilyServiceImplBase
       implements io.grpc.BindableService, AsyncService {
@@ -191,6 +209,9 @@ public final class FamilyServiceGrpc {
 
   /**
    * A stub to allow clients to do asynchronous rpc calls to service FamilyService.
+   * <pre>
+   * --- SERVİS TANIMLARI ---
+   * </pre>
    */
   public static final class FamilyServiceStub
       extends io.grpc.stub.AbstractAsyncStub<FamilyServiceStub> {
@@ -206,32 +227,44 @@ public final class FamilyServiceGrpc {
     }
 
     /**
+     * <pre>
+     * 1. Yeni üye sisteme katılırken (Değişmedi)
+     * </pre>
      */
     public void join(com.example.family.NodeInfo request,
-        io.grpc.stub.StreamObserver<com.example.family.FamilyView> responseObserver) {
+        io.grpc.stub.StreamObserver<com.example.family.JoinResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getJoinMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
+     * <pre>
+     * 2. YENİ: Lider, üyeye "Bunu diske kaydet" der
+     * </pre>
      */
-    public void getFamily(com.example.family.Empty request,
-        io.grpc.stub.StreamObserver<com.example.family.FamilyView> responseObserver) {
+    public void storeMessage(com.example.family.StoreRequest request,
+        io.grpc.stub.StreamObserver<com.example.family.StoreResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
-          getChannel().newCall(getGetFamilyMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getStoreMessageMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
+     * <pre>
+     * 3. YENİ: Lider, üyeden "Şu ID'li mesaj sende mi?" diye sorar
+     * </pre>
      */
-    public void receiveChat(com.example.family.ChatMessage request,
-        io.grpc.stub.StreamObserver<com.example.family.Empty> responseObserver) {
+    public void getMessage(com.example.family.GetRequest request,
+        io.grpc.stub.StreamObserver<com.example.family.GetResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
-          getChannel().newCall(getReceiveChatMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getGetMessageMethod(), getCallOptions()), request, responseObserver);
     }
   }
 
   /**
    * A stub to allow clients to do synchronous rpc calls to service FamilyService.
+   * <pre>
+   * --- SERVİS TANIMLARI ---
+   * </pre>
    */
   public static final class FamilyServiceBlockingStub
       extends io.grpc.stub.AbstractBlockingStub<FamilyServiceBlockingStub> {
@@ -247,29 +280,41 @@ public final class FamilyServiceGrpc {
     }
 
     /**
+     * <pre>
+     * 1. Yeni üye sisteme katılırken (Değişmedi)
+     * </pre>
      */
-    public com.example.family.FamilyView join(com.example.family.NodeInfo request) {
+    public com.example.family.JoinResponse join(com.example.family.NodeInfo request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getJoinMethod(), getCallOptions(), request);
     }
 
     /**
+     * <pre>
+     * 2. YENİ: Lider, üyeye "Bunu diske kaydet" der
+     * </pre>
      */
-    public com.example.family.FamilyView getFamily(com.example.family.Empty request) {
+    public com.example.family.StoreResponse storeMessage(com.example.family.StoreRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
-          getChannel(), getGetFamilyMethod(), getCallOptions(), request);
+          getChannel(), getStoreMessageMethod(), getCallOptions(), request);
     }
 
     /**
+     * <pre>
+     * 3. YENİ: Lider, üyeden "Şu ID'li mesaj sende mi?" diye sorar
+     * </pre>
      */
-    public com.example.family.Empty receiveChat(com.example.family.ChatMessage request) {
+    public com.example.family.GetResponse getMessage(com.example.family.GetRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
-          getChannel(), getReceiveChatMethod(), getCallOptions(), request);
+          getChannel(), getGetMessageMethod(), getCallOptions(), request);
     }
   }
 
   /**
    * A stub to allow clients to do ListenableFuture-style rpc calls to service FamilyService.
+   * <pre>
+   * --- SERVİS TANIMLARI ---
+   * </pre>
    */
   public static final class FamilyServiceFutureStub
       extends io.grpc.stub.AbstractFutureStub<FamilyServiceFutureStub> {
@@ -285,33 +330,42 @@ public final class FamilyServiceGrpc {
     }
 
     /**
+     * <pre>
+     * 1. Yeni üye sisteme katılırken (Değişmedi)
+     * </pre>
      */
-    public com.google.common.util.concurrent.ListenableFuture<com.example.family.FamilyView> join(
+    public com.google.common.util.concurrent.ListenableFuture<com.example.family.JoinResponse> join(
         com.example.family.NodeInfo request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getJoinMethod(), getCallOptions()), request);
     }
 
     /**
+     * <pre>
+     * 2. YENİ: Lider, üyeye "Bunu diske kaydet" der
+     * </pre>
      */
-    public com.google.common.util.concurrent.ListenableFuture<com.example.family.FamilyView> getFamily(
-        com.example.family.Empty request) {
+    public com.google.common.util.concurrent.ListenableFuture<com.example.family.StoreResponse> storeMessage(
+        com.example.family.StoreRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
-          getChannel().newCall(getGetFamilyMethod(), getCallOptions()), request);
+          getChannel().newCall(getStoreMessageMethod(), getCallOptions()), request);
     }
 
     /**
+     * <pre>
+     * 3. YENİ: Lider, üyeden "Şu ID'li mesaj sende mi?" diye sorar
+     * </pre>
      */
-    public com.google.common.util.concurrent.ListenableFuture<com.example.family.Empty> receiveChat(
-        com.example.family.ChatMessage request) {
+    public com.google.common.util.concurrent.ListenableFuture<com.example.family.GetResponse> getMessage(
+        com.example.family.GetRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
-          getChannel().newCall(getReceiveChatMethod(), getCallOptions()), request);
+          getChannel().newCall(getGetMessageMethod(), getCallOptions()), request);
     }
   }
 
   private static final int METHODID_JOIN = 0;
-  private static final int METHODID_GET_FAMILY = 1;
-  private static final int METHODID_RECEIVE_CHAT = 2;
+  private static final int METHODID_STORE_MESSAGE = 1;
+  private static final int METHODID_GET_MESSAGE = 2;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -332,15 +386,15 @@ public final class FamilyServiceGrpc {
       switch (methodId) {
         case METHODID_JOIN:
           serviceImpl.join((com.example.family.NodeInfo) request,
-              (io.grpc.stub.StreamObserver<com.example.family.FamilyView>) responseObserver);
+              (io.grpc.stub.StreamObserver<com.example.family.JoinResponse>) responseObserver);
           break;
-        case METHODID_GET_FAMILY:
-          serviceImpl.getFamily((com.example.family.Empty) request,
-              (io.grpc.stub.StreamObserver<com.example.family.FamilyView>) responseObserver);
+        case METHODID_STORE_MESSAGE:
+          serviceImpl.storeMessage((com.example.family.StoreRequest) request,
+              (io.grpc.stub.StreamObserver<com.example.family.StoreResponse>) responseObserver);
           break;
-        case METHODID_RECEIVE_CHAT:
-          serviceImpl.receiveChat((com.example.family.ChatMessage) request,
-              (io.grpc.stub.StreamObserver<com.example.family.Empty>) responseObserver);
+        case METHODID_GET_MESSAGE:
+          serviceImpl.getMessage((com.example.family.GetRequest) request,
+              (io.grpc.stub.StreamObserver<com.example.family.GetResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -365,22 +419,22 @@ public final class FamilyServiceGrpc {
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
               com.example.family.NodeInfo,
-              com.example.family.FamilyView>(
+              com.example.family.JoinResponse>(
                 service, METHODID_JOIN)))
         .addMethod(
-          getGetFamilyMethod(),
+          getStoreMessageMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
-              com.example.family.Empty,
-              com.example.family.FamilyView>(
-                service, METHODID_GET_FAMILY)))
+              com.example.family.StoreRequest,
+              com.example.family.StoreResponse>(
+                service, METHODID_STORE_MESSAGE)))
         .addMethod(
-          getReceiveChatMethod(),
+          getGetMessageMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
-              com.example.family.ChatMessage,
-              com.example.family.Empty>(
-                service, METHODID_RECEIVE_CHAT)))
+              com.example.family.GetRequest,
+              com.example.family.GetResponse>(
+                service, METHODID_GET_MESSAGE)))
         .build();
   }
 
@@ -430,8 +484,8 @@ public final class FamilyServiceGrpc {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new FamilyServiceFileDescriptorSupplier())
               .addMethod(getJoinMethod())
-              .addMethod(getGetFamilyMethod())
-              .addMethod(getReceiveChatMethod())
+              .addMethod(getStoreMessageMethod())
+              .addMethod(getGetMessageMethod())
               .build();
         }
       }

@@ -15,25 +15,35 @@ public final class FamilyProto {
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_family_NodeInfo_descriptor;
+    internal_static_com_example_family_NodeInfo_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_family_NodeInfo_fieldAccessorTable;
+      internal_static_com_example_family_NodeInfo_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_family_FamilyView_descriptor;
+    internal_static_com_example_family_JoinResponse_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_family_FamilyView_fieldAccessorTable;
+      internal_static_com_example_family_JoinResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_family_Empty_descriptor;
+    internal_static_com_example_family_StoreRequest_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_family_Empty_fieldAccessorTable;
+      internal_static_com_example_family_StoreRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_family_ChatMessage_descriptor;
+    internal_static_com_example_family_StoreResponse_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_family_ChatMessage_fieldAccessorTable;
+      internal_static_com_example_family_StoreResponse_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_example_family_GetRequest_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_com_example_family_GetRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_com_example_family_GetResponse_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_com_example_family_GetResponse_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -43,46 +53,63 @@ public final class FamilyProto {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\014family.proto\022\006family\"&\n\010NodeInfo\022\014\n\004ho" +
-      "st\030\001 \001(\t\022\014\n\004port\030\002 \001(\005\"/\n\nFamilyView\022!\n\007" +
-      "members\030\001 \003(\0132\020.family.NodeInfo\"\007\n\005Empty" +
-      "\"R\n\013ChatMessage\022\014\n\004text\030\001 \001(\t\022\020\n\010fromHos" +
-      "t\030\002 \001(\t\022\020\n\010fromPort\030\003 \001(\005\022\021\n\ttimestamp\030\004" +
-      " \001(\0032\240\001\n\rFamilyService\022,\n\004Join\022\020.family." +
-      "NodeInfo\032\022.family.FamilyView\022.\n\tGetFamil" +
-      "y\022\r.family.Empty\032\022.family.FamilyView\0221\n\013" +
-      "ReceiveChat\022\023.family.ChatMessage\032\r.famil" +
-      "y.EmptyB#\n\022com.example.familyB\013FamilyPro" +
-      "toP\001b\006proto3"
+      "\n\014family.proto\022\022com.example.family\"&\n\010No" +
+      "deInfo\022\014\n\004host\030\001 \001(\t\022\014\n\004port\030\002 \001(\005\"0\n\014Jo" +
+      "inResponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002" +
+      " \001(\t\"2\n\014StoreRequest\022\021\n\tmessageId\030\001 \001(\t\022" +
+      "\017\n\007content\030\002 \001(\t\"1\n\rStoreResponse\022\017\n\007suc" +
+      "cess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\"\037\n\nGetReques" +
+      "t\022\021\n\tmessageId\030\001 \001(\t\"@\n\013GetResponse\022\r\n\005f" +
+      "ound\030\001 \001(\010\022\017\n\007content\030\002 \001(\t\022\021\n\townerNode" +
+      "\030\003 \001(\t2\373\001\n\rFamilyService\022F\n\004Join\022\034.com.e" +
+      "xample.family.NodeInfo\032 .com.example.fam" +
+      "ily.JoinResponse\022S\n\014StoreMessage\022 .com.e" +
+      "xample.family.StoreRequest\032!.com.example" +
+      ".family.StoreResponse\022M\n\nGetMessage\022\036.co" +
+      "m.example.family.GetRequest\032\037.com.exampl" +
+      "e.family.GetResponseB#\n\022com.example.fami" +
+      "lyB\013FamilyProtoP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         });
-    internal_static_family_NodeInfo_descriptor =
+    internal_static_com_example_family_NodeInfo_descriptor =
       getDescriptor().getMessageTypes().get(0);
-    internal_static_family_NodeInfo_fieldAccessorTable = new
+    internal_static_com_example_family_NodeInfo_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_family_NodeInfo_descriptor,
+        internal_static_com_example_family_NodeInfo_descriptor,
         new java.lang.String[] { "Host", "Port", });
-    internal_static_family_FamilyView_descriptor =
+    internal_static_com_example_family_JoinResponse_descriptor =
       getDescriptor().getMessageTypes().get(1);
-    internal_static_family_FamilyView_fieldAccessorTable = new
+    internal_static_com_example_family_JoinResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_family_FamilyView_descriptor,
-        new java.lang.String[] { "Members", });
-    internal_static_family_Empty_descriptor =
+        internal_static_com_example_family_JoinResponse_descriptor,
+        new java.lang.String[] { "Success", "Message", });
+    internal_static_com_example_family_StoreRequest_descriptor =
       getDescriptor().getMessageTypes().get(2);
-    internal_static_family_Empty_fieldAccessorTable = new
+    internal_static_com_example_family_StoreRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_family_Empty_descriptor,
-        new java.lang.String[] { });
-    internal_static_family_ChatMessage_descriptor =
+        internal_static_com_example_family_StoreRequest_descriptor,
+        new java.lang.String[] { "MessageId", "Content", });
+    internal_static_com_example_family_StoreResponse_descriptor =
       getDescriptor().getMessageTypes().get(3);
-    internal_static_family_ChatMessage_fieldAccessorTable = new
+    internal_static_com_example_family_StoreResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_family_ChatMessage_descriptor,
-        new java.lang.String[] { "Text", "FromHost", "FromPort", "Timestamp", });
+        internal_static_com_example_family_StoreResponse_descriptor,
+        new java.lang.String[] { "Success", "Message", });
+    internal_static_com_example_family_GetRequest_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_com_example_family_GetRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_com_example_family_GetRequest_descriptor,
+        new java.lang.String[] { "MessageId", });
+    internal_static_com_example_family_GetResponse_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_com_example_family_GetResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_com_example_family_GetResponse_descriptor,
+        new java.lang.String[] { "Found", "Content", "OwnerNode", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

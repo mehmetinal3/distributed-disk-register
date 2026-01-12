@@ -4,103 +4,115 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import java.util.Scanner; // Klavye okumak için ekledik
+import java.util.Scanner;
 
-// Bu dosya projenin beynidir. 
-// "Run" tuşuna bastığında Java önce buradaki main metoduna bakar.
+// Bu dosya hem SUNUCU (Server) hem de İSTEMCİ (Client) gibi davranır.
+// Hem gelen istekleri dinler, hem de komut gönderir.
 public class NodeMain {
 
     public static void main(String[] args) throws Exception {
-        System.out.println("🚀 Sistem başlatılıyor...");
+        System.out.println("🚀 Depolama Sistemi (Storage Node) Başlatılıyor...");
 
-        // 1. ADIM: Komut satırından gelen ayarları oku (Örn: -port 5000)
+        // 1. Ayarları Oku (-port 6000 -target localhost:5000 vb.)
         Configuration config = CommandParser.parse(args);
-
         int myPort = config.getPort();
-        System.out.println("✅ Port belirlendi: " + myPort);
 
-        // 2. ADIM: Sunucuyu (Server) Başlat
-        // Bu bilgisayarı dışarıdan gelen isteklere açıyoruz.
+        // 2. Sunucuyu Başlat (Gelen SET/GET isteklerini dinle)
         Server server = ServerBuilder.forPort(myPort)
-                .addService(new FamilyServiceImpl()) 
+                .addService(new FamilyServiceImpl()) // Yeni yazdığımız disk servisi
                 .build()
                 .start();
 
         System.out.println("👂 Sunucu " + myPort + " portunda dinlemeye başladı...");
+        System.out.println("💾 Veriler 'storage_" + ProcessHandle.current().pid() + ".txt' dosyasına yazılacak.");
 
-        // Kendi adresimizi belirleyelim
-        String myIp = "localhost"; 
-        
-        // İletişim kuracağımız "Vekil" (Stub) nesnesi.
-        // Bunu if bloğunun dışına çıkardık ki aşağıda mesaj atarken de kullanabilelim.
+        // Lider veya Başka Üye ile İletişim Kurmak İçin Kanal
         FamilyServiceGrpc.FamilyServiceBlockingStub targetStub = null;
+        String myIp = "localhost";
 
-        // 3. ADIM: Eğer bir hedef verildiyse, ona katıl (Client Ol)
+        // 3. Eğer bir hedef verildiyse ona bağlan (Join at)
         if (config.getTargetHost() != null) {
             String hedefIp = config.getTargetHost();
             int hedefPort = config.getTargetPort();
-
             System.out.println("🔗 Hedefe bağlanılıyor: " + hedefIp + ":" + hedefPort);
 
             ManagedChannel channel = ManagedChannelBuilder.forAddress(hedefIp, hedefPort)
                     .usePlaintext()
                     .build();
 
-            // Stub'ı oluşturuyoruz
             targetStub = FamilyServiceGrpc.newBlockingStub(channel);
 
-            // Kendimizi tanıtan bir kimlik kartı hazırla
-            NodeInfo myInfo = NodeInfo.newBuilder()
-                    .setHost(myIp)
-                    .setPort(myPort)
-                    .build();
-
+            // Kendimizi Tanıtalım
+            NodeInfo myInfo = NodeInfo.newBuilder().setHost(myIp).setPort(myPort).build();
             try {
-                // Join metodunu çağır!
-                targetStub.join(myInfo);
-                System.out.println("🎉 Başarıyla ağa katıldık!");
+                JoinResponse response = targetStub.join(myInfo);
+                if (response.getSuccess()) {
+                    System.out.println("✅ " + response.getMessage());
+                }
             } catch (Exception e) {
-                System.err.println("❌ Ağa katılırken hata oluştu: " + e.getMessage());
+                System.err.println("❌ Bağlantı hatası: " + e.getMessage());
             }
         } else {
-            System.out.println("👑 Hedef belirtilmedi, Lider (ilk düğüm) benim.");
+            System.out.println("👑 Hedef yok, Lider (Baş Düğüm) benim.");
         }
 
-        // --- 4. ADIM: MESAJLAŞMA DÖNGÜSÜ ---
-        // Eskiden burada sadece bekliyorduk, şimdi hem bekliyoruz hem klavyeyi dinliyoruz.
-        
+        // --- 4. KOMUT DÖNGÜSÜ (SET ve GET) ---
         Scanner scanner = new Scanner(System.in);
-        System.out.println("💬 Sohbet başladı! Mesajını yaz ve Enter'a bas:");
+        System.out.println("\n💡 KOMUTLAR:");
+        System.out.println("   👉 SET <id> <veri>  (Örn: SET 100 VizeNotlari)");
+        System.out.println("   👉 GET <id>         (Örn: GET 100)");
+        System.out.println("--------------------------------------------------");
 
         while (true) {
-            // Kullanıcının yazmasını bekle
-            String messageText = scanner.nextLine();
+            System.out.print("> ");
+            String line = scanner.nextLine();
+            if (line.trim().isEmpty()) continue;
 
-            // Boş enter'a basarsa işlem yapma
-            if (messageText.trim().isEmpty()) continue;
+            // Komutu parçala: "SET 100 Veri" -> ["SET", "100", "Veri"]
+            String[] parts = line.split(" ", 3);
+            String command = parts[0].toUpperCase();
 
-            // Eğer bir hedefe bağlıysak (Lider değilsek) mesajı gönderelim
-            if (targetStub != null) {
-                try {
-                    // Proto dosyasındaki ChatMessage yapısını dolduruyoruz.
-                    // NOT: Senin proto dosyanda "message" yerine "text", "from" yerine "fromHost/fromPort" var.
-                    ChatMessage chatMsg = ChatMessage.newBuilder()
-                            .setFromHost(myIp)        // Kimden (IP)
-                            .setFromPort(myPort)      // Kimden (Port)
-                            .setText(messageText)     // Mesaj İçeriği (setMessage DEĞİL, setText)
-                            .setTimestamp(System.currentTimeMillis()) // Zaman damgası
+            // Eğer bir hedefe bağlı değilsek komut gönderemeyiz (Lidersek kendimize mi yazacağız? Şimdilik hayır)
+            if (targetStub == null) {
+                System.out.println("⚠️ Lider modundasın. Komutları 'Client' modundaki terminallerden gönder.");
+                continue;
+            }
+
+            try {
+                // --- SET KOMUTU (VERİ KAYDETME) ---
+                if (command.equals("SET") && parts.length == 3) {
+                    String id = parts[1];
+                    String content = parts[2];
+
+                    StoreRequest request = StoreRequest.newBuilder()
+                            .setMessageId(id)
+                            .setContent(content)
                             .build();
 
-                    // gRPC ile karşıya fırlat!
-                    targetStub.receiveChat(chatMsg);
-                    System.out.println("📤 Gönderildi: " + messageText);
-                    
-                } catch (Exception e) {
-                    System.err.println("❌ Mesaj giderken hata oldu: " + e.getMessage());
+                    StoreResponse response = targetStub.storeMessage(request);
+                    System.out.println(response.getSuccess() ? "✅ " + response.getMessage() : "❌ Hata: " + response.getMessage());
+
+                // --- GET KOMUTU (VERİ OKUMA) ---
+                } else if (command.equals("GET") && parts.length == 2) {
+                    String id = parts[1];
+
+                    GetRequest request = GetRequest.newBuilder()
+                            .setMessageId(id)
+                            .build();
+
+                    GetResponse response = targetStub.getMessage(request);
+                    if (response.getFound()) {
+                        System.out.println("📦 BULUNDU (" + response.getOwnerNode() + "): " + response.getContent());
+                    } else {
+                        System.out.println("🚫 Bulunamadı.");
+                    }
+
+                } else {
+                    System.out.println("❓ Hatalı komut! Örnek: 'SET 50 Elma' veya 'GET 5'");
                 }
-            } else {
-                // Eğer Lidersek ve bir yere bağlı değilsek, kendi kendimize konuşuyoruz demektir.
-                System.out.println("👑 [Lider Notu]: Ben başkomutanım, şu an mesajı sadece kendime yazdım: " + messageText);
+
+            } catch (Exception e) {
+                System.err.println("🔥 İletişim Hatası: " + e.getMessage());
             }
         }
     }

@@ -1,79 +1,133 @@
 package com.example.family;
 
-// gRPC'nin iletişim kurması için gereken kütüphaneler
 import io.grpc.stub.StreamObserver;
-// Proto dosyasından üretilen temel sınıf (Base Class)
 import com.example.family.FamilyServiceGrpc.FamilyServiceImplBase;
 
+import java.io.*;
+import java.util.Scanner;
+
 /**
- * BU SINIF NE İŞE YARAR?
- * Burası bizim "Çağrı Merkezimiz".
- * Dış dünyadan (başka bilgisayarlardan) gelen tüm istekleri karşılayan yerdir.
- * .proto dosyasında tanımladığımız 3 kuralı (Join, ReceiveChat, GetFamily) burada kodluyoruz.
+ * FamilyServiceImpl
+ * GÖREVİ: Dışarıdan gelen "Kaydet (SET)" ve "Getir (GET)" isteklerini yapan sınıftır.
+ * ARTIK CHAT YOK, VERİ DEPOLAMA VAR.
  */
 public class FamilyServiceImpl extends FamilyServiceImplBase {
 
+    // Her çalışan terminalin (Node) kendi özel dosya ismi olsun.
+    // Örn: storage_12345.txt (12345 o anki işlem numarasıdır)
+    private final String fileName = "storage_" + ProcessHandle.current().pid() + ".txt";
+
     /**
-     * 1. GÖREV: JOIN (Ağa Katılma)
-     * Yeni bir bilgisayar ağa katılmak istediğinde bu metodu çağırır.
-     * @param request          : Gelen kişinin bilgileri (IP adresi ve Portu)
-     * @param responseObserver : Cevabı geri göndereceğimiz "postacı"
+     * 1. JOIN (AĞA KATILMA)
+     * Yeni gelen üyeyi karşılar.
      */
     @Override
-    public void join(NodeInfo request, StreamObserver<FamilyView> responseObserver) {
-        // Gelen kişinin IP ve Port bilgilerini alıyoruz
-        String yeniGelenHost = request.getHost();
-        int yeniGelenPort = request.getPort();
-        String tamAdres = yeniGelenHost + ":" + yeniGelenPort;
+    public void join(NodeInfo request, StreamObserver<JoinResponse> responseObserver) {
+        String yeniGelen = request.getHost() + ":" + request.getPort();
+        System.out.println("👋 [Lider] Yeni katılım isteği: " + yeniGelen);
 
-        // Konsola bilgi verelim
-        System.out.println("👋 [Sunucu] Yeni katılım isteği geldi: " + tamAdres);
+        // Liderin hafızasına (Registry) ekle
+        NodeRegistry.registerNode(yeniGelen);
 
-        // ÖNEMLİ: Gelen kişiyi "Rehberimize" (NodeRegistry) kaydediyoruz.
-        // Böylece sistemde kimler var unutmayacağız.
-        NodeRegistry.registerNode(tamAdres);
+        // Cevap dön: "Başarıyla katıldın"
+        JoinResponse response = JoinResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Aramıza hoşgeldin! Dosya ismin: " + fileName)
+                .build();
 
-        // Cevap Hazırlama:
-        // Senin proto dosyan Join işleminden sonra "FamilyView" dönmemizi istiyor.
-        FamilyView response = FamilyView.newBuilder().build();
-
-        // Cevabı postacıya verip gönderiyoruz
         responseObserver.onNext(response);
-        
-        // "İşimiz bitti, telefonu kapatabilirsin" diyoruz.
         responseObserver.onCompleted();
     }
 
     /**
-     * 2. GÖREV: RECEIVE CHAT (Mesaj Alma)
-     * Biri bize mesaj attığında bu metot çalışır.
+     * 2. STORE MESSAGE (KAYDETME - SET)
+     * Liderden "Bunu diske yaz" emri geldiğinde çalışır.
+     * Hocanın istediği "Üyeler mesajı diskte saklamalıdır" maddesi burasıdır.
      */
     @Override
-    public void receiveChat(ChatMessage request, StreamObserver<Empty> responseObserver) {
-        // Gelen mesajın kimden geldiğini ve içeriğini alalım.
-        // Proto dosyasındaki 'fromHost', 'fromPort' ve 'text' alanlarını kullanıyoruz.
-        String kimden = request.getFromHost() + ":" + request.getFromPort();
-        String mesaj = request.getText(); // getMessage() DEĞİL, getText() kullanıyoruz.
+    public void storeMessage(StoreRequest request, StreamObserver<StoreResponse> responseObserver) {
+        String id = request.getMessageId();
+        String icerik = request.getContent();
 
-        // Mesajı ekrana şık bir şekilde basalım
-        System.out.println("\n💬 [CHAT] " + kimden + " diyor ki: " + mesaj);
-        
-        // Karşı tarafa "Mesajını aldım" demek için boş bir cevap (Empty) dönüyoruz.
-        responseObserver.onNext(Empty.newBuilder().build());
+        System.out.println("💾 [Disk] Yazılıyor -> ID: " + id + " | Veri: " + icerik);
+
+        try (FileWriter fw = new FileWriter(fileName, true); // 'true' = dosyanın sonuna ekle
+             BufferedWriter bw = new BufferedWriter(fw);
+             PrintWriter out = new PrintWriter(bw)) {
+
+            // Dosyaya şu formatta yazıyoruz: ID:İÇERİK
+            out.println(id + ":" + icerik);
+
+            // Başarılı cevabı dön
+            StoreResponse response = StoreResponse.newBuilder()
+                    .setSuccess(true)
+                    .setMessage("Kaydedildi: " + fileName)
+                    .build();
+            responseObserver.onNext(response);
+
+        } catch (IOException e) {
+            System.err.println("❌ Disk Hatası: " + e.getMessage());
+            // Hata cevabı dön
+            StoreResponse response = StoreResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage("Disk hatası oluştu!")
+                    .build();
+            responseObserver.onNext(response);
+        }
         responseObserver.onCompleted();
     }
-    
+
     /**
-     * 3. GÖREV: GET FAMILY (Üye Listesini İsteme)
-     * Biri "Sistemde kimler var?" diye sorarsa burası çalışır.
+     * 3. GET MESSAGE (OKUMA - GET)
+     * Lider "Şu ID'li mesaj sende mi?" diye sorduğunda çalışır.
+     * Dosyayı satır satır okur ve aranan ID'yi bulmaya çalışır.
      */
     @Override
-    public void getFamily(Empty request, StreamObserver<FamilyView> responseObserver) {
-        // Şimdilik sadece boş bir liste dönüyoruz.
-        // Amaç: Kodun hata vermeden çalışması.
-        FamilyView response = FamilyView.newBuilder().build();
-        
-        responseObserver.onNext(response);
+    public void getMessage(GetRequest request, StreamObserver<GetResponse> responseObserver) {
+        String arananId = request.getMessageId();
+        String bulunanIcerik = "";
+        boolean bulundu = false;
+
+        System.out.println("🔎 [Disk] Aranıyor -> ID: " + arananId);
+
+        // Dosyayı okumaya çalış
+        File file = new File(fileName);
+        if (file.exists()) {
+            try (Scanner scanner = new Scanner(file)) {
+                while (scanner.hasNextLine()) {
+                    String satir = scanner.nextLine();
+                    // Satır formatımız: ID:İÇERİK (Örn: 100:Merhaba)
+                    String[] parcalar = satir.split(":", 2);
+
+                    if (parcalar.length == 2) {
+                        String dosyadakiId = parcalar[0];
+                        String dosyadakiIcerik = parcalar[1];
+
+                        if (dosyadakiId.equals(arananId)) {
+                            bulundu = true;
+                            bulunanIcerik = dosyadakiIcerik;
+                            break; // Bulduk, döngüden çık
+                        }
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                // Dosya yoksa sorun değil, bulunamadı deriz.
+            }
+        }
+
+        // Sonucu hazırla
+        GetResponse.Builder responseBuilder = GetResponse.newBuilder()
+                .setFound(bulundu);
+
+        if (bulundu) {
+            System.out.println("✅ [Disk] BULUNDU: " + bulunanIcerik);
+            responseBuilder.setContent(bulunanIcerik);
+            responseBuilder.setOwnerNode(fileName); // Kimde bulunduğunu da söyleyelim
+        } else {
+            System.out.println("❌ [Disk] Bulunamadı.");
+        }
+
+        responseObserver.onNext(responseBuilder.build());
         responseObserver.onCompleted();
     }
 }

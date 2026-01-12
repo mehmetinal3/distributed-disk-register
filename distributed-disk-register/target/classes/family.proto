@@ -1,31 +1,55 @@
 syntax = "proto3";
 
-package family;
+package com.example.family;
 
 option java_multiple_files = true;
-option java_package = "com.example.family"; 
+option java_package = "com.example.family";
 option java_outer_classname = "FamilyProto";
+
+// --- SERVİS TANIMLARI ---
+service FamilyService {
+  // 1. Yeni üye sisteme katılırken (Değişmedi)
+  rpc Join (NodeInfo) returns (JoinResponse);
+
+  // 2. YENİ: Lider, üyeye "Bunu diske kaydet" der
+  rpc StoreMessage (StoreRequest) returns (StoreResponse);
+
+  // 3. YENİ: Lider, üyeden "Şu ID'li mesaj sende mi?" diye sorar
+  rpc GetMessage (GetRequest) returns (GetResponse);
+}
+
+// --- MESAJ TİPLERİ ---
 
 message NodeInfo {
   string host = 1;
   int32 port = 2;
 }
 
-message FamilyView {
-  repeated NodeInfo members = 1;
+message JoinResponse {
+  bool success = 1;
+  string message = 2;
 }
 
-message Empty {}
-
-message ChatMessage {
-  string text = 1;
-  string fromHost = 2;
-  int32 fromPort = 3;
-  int64 timestamp = 4;
+// KAYDETME İSTEĞİ (Lider -> Üye)
+message StoreRequest {
+  string messageId = 1;  // Mesajın ID'si (Örn: "100")
+  string content = 2;    // Mesajın kendisi (Örn: "Ders Notlari")
 }
 
-service FamilyService {
-  rpc Join (NodeInfo) returns (FamilyView);
-  rpc GetFamily (Empty) returns (FamilyView);
-  rpc ReceiveChat (ChatMessage) returns (Empty);
+// KAYDETME CEVABI (Üye -> Lider)
+message StoreResponse {
+  bool success = 1;      // Kayıt başarılı mı?
+  string message = 2;    // Hata varsa mesajı
+}
+
+// OKUMA İSTEĞİ (Lider -> Üye)
+message GetRequest {
+  string messageId = 1;
+}
+
+// OKUMA CEVABI (Üye -> Lider)
+message GetResponse {
+  bool found = 1;        // Mesaj bulundu mu?
+  string content = 2;    // Bulunduysa içeriği
+  string ownerNode = 3;  // <--- EKLENEN SATIR BURASI (Mesajın kimde olduğu)
 }

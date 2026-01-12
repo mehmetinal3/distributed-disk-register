@@ -4,7 +4,7 @@
 package com.example.family;
 
 public interface NodeInfoOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:family.NodeInfo)
+    // @@protoc_insertion_point(interface_extends:com.example.family.NodeInfo)
     com.google.protobuf.MessageOrBuilder {
 
   /**
