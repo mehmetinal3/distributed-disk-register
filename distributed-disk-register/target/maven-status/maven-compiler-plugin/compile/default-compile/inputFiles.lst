@@ -1,6 +1,7 @@
 /Users/mehmetinal/distributed-disk-register/distributed-disk-register/src/main/java/com/example/family/CommandParser.java
 /Users/mehmetinal/distributed-disk-register/distributed-disk-register/src/main/java/com/example/family/Configuration.java
 /Users/mehmetinal/distributed-disk-register/distributed-disk-register/src/main/java/com/example/family/FamilyServiceImpl.java
+/Users/mehmetinal/distributed-disk-register/distributed-disk-register/src/main/java/com/example/family/NodeMain.java
 /Users/mehmetinal/distributed-disk-register/distributed-disk-register/src/main/java/com/example/family/NodeRegistry.java
 /Users/mehmetinal/distributed-disk-register/distributed-disk-register/target/generated-sources/protobuf/grpc-java/com/example/family/FamilyServiceGrpc.java
 /Users/mehmetinal/distributed-disk-register/distributed-disk-register/target/generated-sources/protobuf/java/com/example/family/ChatMessage.java

@@ -1,7 +1,3 @@
-com/example/family/Configuration.class
-com/example/family/NodeRegistry.class
-com/example/family/CommandParser$ParsedCommand.class
-com/example/family/CommandParser$CommandType.class
 com/example/family/FamilyServiceGrpc$FamilyServiceBaseDescriptorSupplier.class
 com/example/family/FamilyServiceGrpc$FamilyServiceStub.class
 com/example/family/FamilyServiceGrpc$FamilyServiceFutureStub.class
@@ -13,6 +9,5 @@ com/example/family/FamilyServiceGrpc$1.class
 com/example/family/FamilyServiceGrpc.class
 com/example/family/FamilyServiceGrpc$3.class
 com/example/family/FamilyServiceGrpc$FamilyServiceImplBase.class
-com/example/family/CommandParser.class
 com/example/family/FamilyServiceGrpc$FamilyServiceFileDescriptorSupplier.class
 com/example/family/FamilyServiceGrpc$AsyncService.class
