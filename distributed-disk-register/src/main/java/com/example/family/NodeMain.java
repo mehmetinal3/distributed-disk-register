@@ -4,6 +4,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import java.util.Scanner; // Klavye okumak için ekledik
 
 // Bu dosya projenin beynidir. 
 // "Run" tuşuna bastığında Java önce buradaki main metoduna bakar.
@@ -13,7 +14,6 @@ public class NodeMain {
         System.out.println("🚀 Sistem başlatılıyor...");
 
         // 1. ADIM: Komut satırından gelen ayarları oku (Örn: -port 5000)
-        // (Bunu Task 1'de yazdığımız CommandParser yapıyor)
         Configuration config = CommandParser.parse(args);
 
         int myPort = config.getPort();
@@ -22,31 +22,32 @@ public class NodeMain {
         // 2. ADIM: Sunucuyu (Server) Başlat
         // Bu bilgisayarı dışarıdan gelen isteklere açıyoruz.
         Server server = ServerBuilder.forPort(myPort)
-                .addService(new FamilyServiceImpl()) // Az önce yazdığımız hizmeti ekle
+                .addService(new FamilyServiceImpl()) 
                 .build()
                 .start();
 
         System.out.println("👂 Sunucu " + myPort + " portunda dinlemeye başladı...");
 
-        // Kendi adresimizi kaydedelim (Daha sonra IP bulmayı otomatikleştireceğiz)
-        // Şimdilik "localhost" diyoruz.
+        // Kendi adresimizi belirleyelim
         String myIp = "localhost"; 
+        
+        // İletişim kuracağımız "Vekil" (Stub) nesnesi.
+        // Bunu if bloğunun dışına çıkardık ki aşağıda mesaj atarken de kullanabilelim.
+        FamilyServiceGrpc.FamilyServiceBlockingStub targetStub = null;
 
         // 3. ADIM: Eğer bir hedef verildiyse, ona katıl (Client Ol)
-        // (Örn: -target 127.0.0.1:5000 denildiyse)
         if (config.getTargetHost() != null) {
             String hedefIp = config.getTargetHost();
             int hedefPort = config.getTargetPort();
 
             System.out.println("🔗 Hedefe bağlanılıyor: " + hedefIp + ":" + hedefPort);
 
-            // Hedef sunucuya bir kanal (hat) aç
             ManagedChannel channel = ManagedChannelBuilder.forAddress(hedefIp, hedefPort)
-                    .usePlaintext() // Güvenlik sertifikası olmadan (geliştirme modu)
+                    .usePlaintext()
                     .build();
 
-            // Karşı tarafla konuşacak "Vekil" (Stub) oluştur
-            FamilyServiceGrpc.FamilyServiceBlockingStub stub = FamilyServiceGrpc.newBlockingStub(channel);
+            // Stub'ı oluşturuyoruz
+            targetStub = FamilyServiceGrpc.newBlockingStub(channel);
 
             // Kendimizi tanıtan bir kimlik kartı hazırla
             NodeInfo myInfo = NodeInfo.newBuilder()
@@ -55,8 +56,8 @@ public class NodeMain {
                     .build();
 
             try {
-                // VE İŞTE O AN: Join metodunu çağır!
-                stub.join(myInfo);
+                // Join metodunu çağır!
+                targetStub.join(myInfo);
                 System.out.println("🎉 Başarıyla ağa katıldık!");
             } catch (Exception e) {
                 System.err.println("❌ Ağa katılırken hata oluştu: " + e.getMessage());
@@ -65,8 +66,42 @@ public class NodeMain {
             System.out.println("👑 Hedef belirtilmedi, Lider (ilk düğüm) benim.");
         }
 
-        // 4. ADIM: Sunucuyu açık tut
-        // Bu satır olmazsa program hemen kapanır.
-        server.awaitTermination();
+        // --- 4. ADIM: MESAJLAŞMA DÖNGÜSÜ ---
+        // Eskiden burada sadece bekliyorduk, şimdi hem bekliyoruz hem klavyeyi dinliyoruz.
+        
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("💬 Sohbet başladı! Mesajını yaz ve Enter'a bas:");
+
+        while (true) {
+            // Kullanıcının yazmasını bekle
+            String messageText = scanner.nextLine();
+
+            // Boş enter'a basarsa işlem yapma
+            if (messageText.trim().isEmpty()) continue;
+
+            // Eğer bir hedefe bağlıysak (Lider değilsek) mesajı gönderelim
+            if (targetStub != null) {
+                try {
+                    // Proto dosyasındaki ChatMessage yapısını dolduruyoruz.
+                    // NOT: Senin proto dosyanda "message" yerine "text", "from" yerine "fromHost/fromPort" var.
+                    ChatMessage chatMsg = ChatMessage.newBuilder()
+                            .setFromHost(myIp)        // Kimden (IP)
+                            .setFromPort(myPort)      // Kimden (Port)
+                            .setText(messageText)     // Mesaj İçeriği (setMessage DEĞİL, setText)
+                            .setTimestamp(System.currentTimeMillis()) // Zaman damgası
+                            .build();
+
+                    // gRPC ile karşıya fırlat!
+                    targetStub.receiveChat(chatMsg);
+                    System.out.println("📤 Gönderildi: " + messageText);
+                    
+                } catch (Exception e) {
+                    System.err.println("❌ Mesaj giderken hata oldu: " + e.getMessage());
+                }
+            } else {
+                // Eğer Lidersek ve bir yere bağlı değilsek, kendi kendimize konuşuyoruz demektir.
+                System.out.println("👑 [Lider Notu]: Ben başkomutanım, şu an mesajı sadece kendime yazdım: " + messageText);
+            }
+        }
     }
 }

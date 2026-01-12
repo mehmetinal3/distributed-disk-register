@@ -16,7 +16,7 @@ public class FamilyServiceImpl extends FamilyServiceImplBase {
     /**
      * 1. GÖREV: JOIN (Ağa Katılma)
      * Yeni bir bilgisayar ağa katılmak istediğinde bu metodu çağırır.
-     * * @param request          : Gelen kişinin bilgileri (IP adresi ve Portu)
+     * @param request          : Gelen kişinin bilgileri (IP adresi ve Portu)
      * @param responseObserver : Cevabı geri göndereceğimiz "postacı"
      */
     @Override
@@ -34,8 +34,7 @@ public class FamilyServiceImpl extends FamilyServiceImplBase {
         NodeRegistry.registerNode(tamAdres);
 
         // Cevap Hazırlama:
-        // Şimdilik boş bir liste (FamilyView) dönüyoruz.
-        // (İleride buraya 'hoşgeldin, işte diğer arkadaşlar' listesini ekleyeceğiz)
+        // Senin proto dosyan Join işleminden sonra "FamilyView" dönmemizi istiyor.
         FamilyView response = FamilyView.newBuilder().build();
 
         // Cevabı postacıya verip gönderiyoruz
@@ -51,12 +50,13 @@ public class FamilyServiceImpl extends FamilyServiceImplBase {
      */
     @Override
     public void receiveChat(ChatMessage request, StreamObserver<Empty> responseObserver) {
-        // Gelen mesajın kimden geldiğini ve içeriğini alalım
-        String kimden = request.getFromHost();
-        String mesaj = request.getText();
+        // Gelen mesajın kimden geldiğini ve içeriğini alalım.
+        // Proto dosyasındaki 'fromHost', 'fromPort' ve 'text' alanlarını kullanıyoruz.
+        String kimden = request.getFromHost() + ":" + request.getFromPort();
+        String mesaj = request.getText(); // getMessage() DEĞİL, getText() kullanıyoruz.
 
         // Mesajı ekrana şık bir şekilde basalım
-        System.out.println("💬 [CHAT] " + kimden + " diyor ki: " + mesaj);
+        System.out.println("\n💬 [CHAT] " + kimden + " diyor ki: " + mesaj);
         
         // Karşı tarafa "Mesajını aldım" demek için boş bir cevap (Empty) dönüyoruz.
         responseObserver.onNext(Empty.newBuilder().build());
