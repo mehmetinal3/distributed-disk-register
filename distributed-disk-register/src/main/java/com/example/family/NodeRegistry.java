@@ -1,70 +1,73 @@
 package com.example.family;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * NodeRegistry: Dağıtık sistemdeki tüm aktif düğümlerin (Nodes) listesini tutan sınıf.
  * Sistemin "Kimler burada?" sorusuna cevap verir.
+ * GÜNCELLEME: Artık Yük Dengeleme (Load Balancing) için sıra takibi de yapıyor.
  */
 public class NodeRegistry {
 
-    // NEDEN ConcurrentHashMap KULLANDIK?
-    // Çünkü dağıtık sistemlerde aynı anda birden fazla düğüm "Ben geldim" diyebilir.
-    // ConcurrentHashMap "Thread-Safe" (İplik güvenli) olduğu için veri kaybını önler.
-    // Key: Düğüm Adresi (örn: "localhost:5001"), Value: Son görülme zamanı (Heartbeat)
-    private static final ConcurrentHashMap<String, Long> nodes = new ConcurrentHashMap<>();
+    // --- DEĞİŞİKLİK ---
+    // Round Robin (Sırayla Dağıtım) yapabilmek için sıraya (Index) ihtiyacımız var.
+    // Bu yüzden Map yerine List kullanıyoruz.
+    // Yine de "Thread-Safe" olması için metotlara 'synchronized' ekledik.
+    private static final List<String> nodes = new ArrayList<>();
+    
+    // Sıranın kimde olduğunu tutan sayaç (0, 1, 2...)
+    private static int nextNodeIndex = 0;
 
     /**
-     * Sisteme yeni bir düğüm ekler veya var olanın süresini günceller.
-     * @param address Düğümün adresi (Örn: localhost:5001)
+     * Sisteme yeni bir düğüm ekler.
+     * synchronized: Aynı anda iki düğüm eklenirse liste karışmasın diye kilitler.
      */
-    public static void registerNode(String address) {
-        // System.currentTimeMillis(): Düğümün en son ne zaman canlı olduğunu tutar.
-        nodes.put(address, System.currentTimeMillis());
-        System.out.println("[Registry] Düğüm listeye eklendi/güncellendi: " + address);
+    public static synchronized void registerNode(String address) {
+        if (!nodes.contains(address)) {
+            nodes.add(address);
+            System.out.println("[Registry] Yeni üye eklendi: " + address);
+            System.out.println("📊 Güncel Üye Sayısı: " + nodes.size());
+        }
     }
 
     /**
-     * Sistemden ayrılan veya çöken düğümü listeden siler.
-     * @param address Silinecek düğüm adresi
+     * Sistemden ayrılan düğümü siler.
      */
-    public static void removeNode(String address) {
-        if (nodes.containsKey(address)) {
-            nodes.remove(address);
-            System.out.println("[Registry] Düğüm listeden silindi: " + address);
+    public static synchronized void removeNode(String address) {
+        if (nodes.remove(address)) {
+            System.out.println("[Registry] Düğüm silindi: " + address);
+            // Liste boyutu değiştiği için index hatası olmasın diye sıfırlayalım
+            nextNodeIndex = 0; 
         } else {
             System.out.println("[Registry] HATA: Silinecek düğüm bulunamadı -> " + address);
         }
     }
 
     /**
-     * Şu an aktif olan tüm düğümlerin listesini verir.
-     * @return Düğüm adreslerinin listesi
+     * --- YENİ METOT: ROUND ROBIN MANTIĞI ---
+     * Lider, gelen işi kime vereceğini buradan öğrenir.
+     * Sırasıyla her çağrışta bir sonraki üyeyi verir.
      */
-    public static List<String> getActiveNodes() {
-        return new ArrayList<>(nodes.keySet());
+    public static synchronized String getNextNode() {
+        if (nodes.isEmpty()) {
+            return null; // Kimse yoksa null dön (İşi kendin yap)
+        }
+        
+        // Listeden sıradaki kişiyi al
+        String target = nodes.get(nextNodeIndex);
+        
+        // Sayacı bir artır. Listenin sonuna geldiysek başa (0) dön.
+        // Modülo (%) işlemi burada döngüyü sağlar (Örn: 3 % 3 = 0).
+        nextNodeIndex = (nextNodeIndex + 1) % nodes.size();
+        
+        return target;
     }
 
-    // --- TEST METODU (Main) ---
-    // Bu sınıfın tek başına doğru çalışıp çalışmadığını test ediyoruz.
-    public static void main(String[] args) {
-        System.out.println("--- NodeRegistry Test Başlıyor ---");
-
-        // 1. İki tane hayali düğüm ekleyelim
-        registerNode("localhost:5001");
-        registerNode("localhost:5002");
-
-        // 2. Listeyi kontrol edelim
-        System.out.println("Şu anki Düğümler: " + getActiveNodes());
-
-        // 3. Birini silelim
-        removeNode("localhost:5001");
-
-        // 4. Son durumu görelim
-        System.out.println("Silme Sonrası Düğümler: " + getActiveNodes());
-        
-        System.out.println("--- Test Bitti ---");
+    /**
+     * Aktif düğümleri listeler.
+     */
+    public static synchronized List<String> getActiveNodes() {
+        return new ArrayList<>(nodes);
     }
 }
