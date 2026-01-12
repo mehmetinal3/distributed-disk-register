@@ -1,55 +1,79 @@
 package com.example.family;
 
-import family.Empty;
-import family.FamilyServiceGrpc;
-import family.FamilyView;
-import family.NodeInfo;
-import family.ChatMessage;
+// gRPC'nin iletişim kurması için gereken kütüphaneler
 import io.grpc.stub.StreamObserver;
+// Proto dosyasından üretilen temel sınıf (Base Class)
+import com.example.family.FamilyServiceGrpc.FamilyServiceImplBase;
 
-public class FamilyServiceImpl extends FamilyServiceGrpc.FamilyServiceImplBase {
+/**
+ * BU SINIF NE İŞE YARAR?
+ * Burası bizim "Çağrı Merkezimiz".
+ * Dış dünyadan (başka bilgisayarlardan) gelen tüm istekleri karşılayan yerdir.
+ * .proto dosyasında tanımladığımız 3 kuralı (Join, ReceiveChat, GetFamily) burada kodluyoruz.
+ */
+public class FamilyServiceImpl extends FamilyServiceImplBase {
 
-    private final NodeRegistry registry;
-    private final NodeInfo self;
-
-    public FamilyServiceImpl(NodeRegistry registry, NodeInfo self) {
-        this.registry = registry;
-        this.self = self;
-        this.registry.add(self);
-    }
-
+    /**
+     * 1. GÖREV: JOIN (Ağa Katılma)
+     * Yeni bir bilgisayar ağa katılmak istediğinde bu metodu çağırır.
+     * * @param request          : Gelen kişinin bilgileri (IP adresi ve Portu)
+     * @param responseObserver : Cevabı geri göndereceğimiz "postacı"
+     */
     @Override
     public void join(NodeInfo request, StreamObserver<FamilyView> responseObserver) {
-        registry.add(request);
+        // Gelen kişinin IP ve Port bilgilerini alıyoruz
+        String yeniGelenHost = request.getHost();
+        int yeniGelenPort = request.getPort();
+        String tamAdres = yeniGelenHost + ":" + yeniGelenPort;
 
-        FamilyView view = FamilyView.newBuilder()
-                .addAllMembers(registry.snapshot())
-                .build();
+        // Konsola bilgi verelim
+        System.out.println("👋 [Sunucu] Yeni katılım isteği geldi: " + tamAdres);
 
-        responseObserver.onNext(view);
+        // ÖNEMLİ: Gelen kişiyi "Rehberimize" (NodeRegistry) kaydediyoruz.
+        // Böylece sistemde kimler var unutmayacağız.
+        NodeRegistry.registerNode(tamAdres);
+
+        // Cevap Hazırlama:
+        // Şimdilik boş bir liste (FamilyView) dönüyoruz.
+        // (İleride buraya 'hoşgeldin, işte diğer arkadaşlar' listesini ekleyeceğiz)
+        FamilyView response = FamilyView.newBuilder().build();
+
+        // Cevabı postacıya verip gönderiyoruz
+        responseObserver.onNext(response);
+        
+        // "İşimiz bitti, telefonu kapatabilirsin" diyoruz.
         responseObserver.onCompleted();
     }
 
-    @Override
-    public void getFamily(Empty request, StreamObserver<FamilyView> responseObserver) {
-        FamilyView view = FamilyView.newBuilder()
-                .addAllMembers(registry.snapshot())
-                .build();
-
-        responseObserver.onNext(view);
-        responseObserver.onCompleted();
-    }
-
-    // Diğer düğümlerden broadcast mesajı geldiğinde
+    /**
+     * 2. GÖREV: RECEIVE CHAT (Mesaj Alma)
+     * Biri bize mesaj attığında bu metot çalışır.
+     */
     @Override
     public void receiveChat(ChatMessage request, StreamObserver<Empty> responseObserver) {
-        System.out.println("💬 Incoming message:");
-        System.out.println("  From: " + request.getFromHost() + ":" + request.getFromPort());
-        System.out.println("  Text: " + request.getText());
-        System.out.println("  Timestamp: " + request.getTimestamp());
-        System.out.println("--------------------------------------");
+        // Gelen mesajın kimden geldiğini ve içeriğini alalım
+        String kimden = request.getFromHost();
+        String mesaj = request.getText();
 
+        // Mesajı ekrana şık bir şekilde basalım
+        System.out.println("💬 [CHAT] " + kimden + " diyor ki: " + mesaj);
+        
+        // Karşı tarafa "Mesajını aldım" demek için boş bir cevap (Empty) dönüyoruz.
         responseObserver.onNext(Empty.newBuilder().build());
+        responseObserver.onCompleted();
+    }
+    
+    /**
+     * 3. GÖREV: GET FAMILY (Üye Listesini İsteme)
+     * Biri "Sistemde kimler var?" diye sorarsa burası çalışır.
+     */
+    @Override
+    public void getFamily(Empty request, StreamObserver<FamilyView> responseObserver) {
+        // Şimdilik sadece boş bir liste dönüyoruz.
+        // Amaç: Kodun hata vermeden çalışması.
+        FamilyView response = FamilyView.newBuilder().build();
+        
+        responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 }
